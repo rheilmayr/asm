@@ -1,4 +1,4 @@
-# Replication code for "The impacts of the Amazon Soy Moratorium on deforestation"
+Replication code for "The impacts of the Amazon Soy Moratorium on deforestation"
 
 Authors: Analysis was designed by Robert Heilmayr, Holly Gibbs, Lisa Rausch 
 and Jacob Munger. Code was written by Robert Heilmayr.
