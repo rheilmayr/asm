@@ -113,6 +113,7 @@ eststo clear
 gen on_car = !missing(propid)
 gen on_car2 = !missing(car_year)
 replace on_car2 = . if (state!="MT" & state!="PA")
+gen asm_now = post_2006 * biome
 
 scalar drop _all
 program drop _all 
@@ -343,7 +344,7 @@ esttab using `dir'tables\ts2_ppcdam_interact.tex, replace label nodepvars nomtit
 eststo clear
 
 	
-/////// Table S4 - Robustness checks
+/////// Table S3 - Robustness checks
 eststo clear
 /// Primary specification	
 eststo primary: reg mb2_vdefor i.biome##i.soy_suit##i.post_2006 i.year##i.f_state ///
@@ -408,120 +409,3 @@ eststo time: reg mb2_vdefor b2006.year##i1.biome##i1.soy_suit i.year##i.f_state 
 	temp trmm roaddist urbandist i.set i.pa  if legal_amazon==1 & dist_amb>-300 & dist_aml<300, vce(cluster municcode)	
 esttab using `dir'figures\f2_time_plot.csv, replace plain ///
 	b(a3) ci(a3)
-	
-	
-	
-	
-	
-//////////////////////////////////////////////////////// 
-///// Soy planting model
-clear all
-clear matrix
-clear mata
-set matsize 11000
-set maxvar 10000
-eststo clear
-set more off
-insheet using `dir'soy_conversion.csv
-
-drop if dist_amb<-300
-drop if dist_aml>300
-
-egen long f_propid = group(propid)
-egen long f_ptid = group(ptid)
-egen long f_state = group(state)
-egen prop_state = mode(state), min by(f_propid) 
-egen prop_munic = mode(munic), min by(f_propid)
-
-gen on_car = !missing(propid)
-gen post_2006 = year>2006
-
-label var biome "Amazon biome"
-label var legal_amazon "Legal Amazon"
-label var mtemp "Temperature"
-label var mtrmm "Precipitation"
-label var post_2006 "Post-2006"
-label define biome_labels 0 "Cerrado biome" 1 "Amazon biome"
-label values biome biome_labels
-label define l_labels 0 "Not legal Amazon" 1 "Legal Amazon"
-label values legal_amazon l_labels
-label define p_labels 0 "Pre-2006" 1 "Post-2006"
-label values post_2006 p_labels
-label define for_labels 0 "Not forest" 1 "Forest"
-label values mb_start_for for_labels
-
-/////////// Table S3 - Soy expansion regressions
-// Full dataset
-eststo dd_for_inbio: reg a_soy i.post_2006##i.mb_start_for i.year#i.f_state ///
-	mtemp mtrmm urbandist roaddist i.set i.pa ///
-	if legal_amazon==1 & biome==1 & a_start_soy==0, vce(cluster municcode)
-count if (year==2006 & e(sample)==1)
-estadd scalar n_points = r(N)
-estadd loc sample "Within Amazon biome"
-	
-eststo dd_for_outbio: reg a_soy i.post_2006##i.mb_start_for i.year#i.f_state  ///
-	mtemp mtrmm urbandist roaddist i.set i.pa ///
-	if legal_amazon==1 & biome==0 & a_start_soy==0, vce(cluster municcode)
-count if (year==2006 & e(sample)==1)
-estadd scalar n_points = r(N)
-estadd loc sample "Outside Amazon biome"
-	
-eststo dd_bio_infor: reg a_soy i.post_2006##i.biome i.year#i.f_state  ///
-	mtemp mtrmm urbandist roaddist i.set i.pa ///
-	if legal_amazon==1 & mb_start_for==1 & a_start_soy==0, vce(cluster municcode)
-count if (year==2006 & e(sample)==1)
-estadd scalar n_points = r(N)
-estadd loc sample "Within forests"
-	
-eststo dd_bio_outfor: reg a_soy i.post_2006##i.biome i.year#i.f_state  ///
-	mtemp mtrmm urbandist roaddist i.set i.pa ///
-	if legal_amazon==1 & mb_start_for==0 & a_start_soy==0, vce(cluster municcode)
-count if (year==2006 & e(sample)==1)
-estadd scalar n_points = r(N)
-estadd loc sample "Outside forests"	
-	
-eststo ddd: reg a_soy i.post_2006##i.biome##i.mb_start_for i.year#i.f_state  ///
-	mtemp mtrmm urbandist roaddist i.set i.pa ///
-	if legal_amazon==1 & a_start_soy==0, vce(cluster municcode)	
-count if (year==2006 & e(sample)==1)
-estadd scalar n_points = r(N)
-estadd loc sample "All points"
-
-esttab using `dir'tables\ts3_ddd_soyconv.tex, replace label nodepvars ///
-	keep(1.post_2006#1.mb_start_for 1.post_2006#1.biome 1.post_2006#1.biome#1.mb_start_for) ///
-	booktabs width(0.8\hsize) alignment(c) ///
-	title(Linear regression results\label{tab1}) ///
-	star(* 0.1 ** 0.05 *** 0.01) ///
-	stats(sample n_points N_clust, labels("Sample" "N. points" "N. municipalities")) ///
-	addnotes("Includes additional covariates and interaction terms as described in SI. Standard errors clustered by municipality") ///
-	mtitles("Amazon DD" "Cerrado DD" "Forest DD" "Non-forest DD" "Triple difference")
-	
-eststo clear
-	
-//
-//
-// ///////////////// Simulation
-// // drop bl_conv cf_conv in_e
-// gen asm = post_2006 * biome * mb_start_for
-// gen p06_biome = post_2006 * biome
-// gen p06_for = post_2006 * mb_start_for
-// gen for_biome = mb_start_for * biome
-//
-// reg a_soy asm p06_biome p06_for for_biome post_2006 biome mb_start_for i.year#i.f_state ///
-// 	mtemp mtrmm i.pa i.set urbandist roaddist ///
-// 	if legal_amazon==1 & a_start_soy==0, vce(cluster municcode)
-// egen in_e = max(e(sample)), by(ptid)
-// predict bl_conv if in_e, pr
-// gen temp_asm = asm
-// replace asm = 0
-// predict cf_conv if in_e, pr
-//
-// replace asm = temp_asm
-// drop temp_asm
-//
-// sum cf_conv if year==2006 & in_e==1
-// sum bl_conv if year==2006 & in_e==1
-//
-// sum cf_conv if year==2017 & in_e==1 & mb_start_for==1 & biome==1
-// sum bl_conv if year==2017 & in_e==1 & mb_start_for==1 & biome==1
-//
