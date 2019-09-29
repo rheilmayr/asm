@@ -9,15 +9,13 @@ Created on Thu Jun 27 13:23:05 2019
 #==============================================================================
 import sys
 import os
-sys.path.append('D:/dev/glue-sb/')
 import pandas as pd
 import numpy as np
-import dirfuncs
-np.random.seed(123)
 
+sys.path.append('D:/dev/glue-sb/')
+import dirfuncs
 dropbox_dir = dirfuncs.guess_dropbox_dir()
-google_dir = dirfuncs.guess_google_dir()
-data_dir = dropbox_dir + 'soyM/analysis/public/'
+data_dir = dropbox_dir + 'soyM/analysis/8-20-19/'
 
 pt_df = pd.read_csv(data_dir + 'wide.csv')
 
@@ -58,13 +56,14 @@ long_df.loc[long_df['mb2_vfor'].isnull(), 'mb2_vdefor'] = np.nan
 # Assign policy treatments
 # =============================================================================
 #long_df.loc[long_df['biome']==1, 'legal_amazon'] = 1
-long_df['soy_suit'] = (long_df['suit']>0).astype(int)
+long_df['soy_suit'] = (long_df['suit']>0).astype(int) * (long_df['GAEZsuit']>40).astype(int)
 
 long_df['car_now'] = (long_df['year']>=long_df['car_year']).astype(int)
 long_df['gts'] = long_df['gts'].fillna(0)
-long_df['gts_now'] = ((long_df['year']>2008) * long_df['gts']).astype(int)
-long_df['asm_now'] = ((long_df['year']>2006) * long_df['biome']).astype(int)
+long_df['gts_now'] = ((long_df['year']>2007) * long_df['gts']).astype(int)
+long_df['asm_now'] = ((long_df['year']>2005) * long_df['biome']).astype(int)
 
+long_df.loc[long_df['year']==2007, 'gts'] = 0
 long_df['gts_now'] = long_df['prodes_mon'] * long_df['gts'] * long_df['biome'] * \
     np.logical_not(long_df['set']).astype(int) * np.logical_not(long_df['pa']).astype(int)
 
@@ -78,6 +77,9 @@ long_df.to_csv(data_dir + 'long.csv', index = False)
 # Create long dataset for soy conversion analysis (2 time period)
 # =============================================================================
 pt_df = pd.read_csv(data_dir + 'wide.csv')
+
+## Soy suitability class
+pt_df['soy_suit'] = (pt_df['suit']>0).astype(int) * (pt_df['GAEZsuit']>40).astype(int)
 
 ## Create starting soy identifiers
 pt_df['a_start_soy_2006'] = pt_df['a_soy_2000']
@@ -104,7 +106,7 @@ long_df = long_df.rename(columns = {col: col[:-1] for col in change_stubs})
 # Export data for analysis in stata
 long_df = long_df.sort_values('random')
 out_df = long_df[['ptid', 'year', 'mb2_vfor_2000', 'mb2_y_defor', 'prodes_mon',
-                  'propid', 'temp_2000', 'trmm_2000', 'urbandist', 'roaddist', 'suit',
+                  'propid', 'temp_2000', 'trmm_2000', 'urbandist', 'roaddist', 'soy_suit',
                   'municcode', 'state', 'a_soy', 'biome', 
                   'legal_amazon', 'pa', 'set', 'random', 'dist_amb', 'dist_aml',
                   'mb_start_for', 'a_start_soy', 'mtemp', 'mtrmm', 'car_year']]
