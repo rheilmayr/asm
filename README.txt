@@ -8,6 +8,9 @@ Data: Replication data is available at ...
 Depdendencies: Code was written in a combination of Python 3 and Stata 14.
 Required python packages include pandas, numpy, matplotlib and seaborn.
 
+Pre-processing / cleaning of data (outside public repo): 
+A) data_prep_points.py
+
 Summary of scripts: Code should be run in the following order:
 1) data_prep.py: Converts wide dataset into long formats for statistical analysis.
 2) regressions.do: Runs statistical analyses and generates latex tables
