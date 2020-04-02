@@ -241,7 +241,6 @@ estadd local acg_se `r(se)'
 
 
 // Export table
-loc dir D:\cloud\Dropbox\collaborations\glue-sb\soyM\analysis\8-20-19\
 esttab interact_0 interact_1 interact_2 interact_3 using `dir'tables\t2_complementary_policies.tex, replace label se nodepvars nomtitles fragment ///
 	keep(1.asm_now) ///
 	booktabs width(0.8\hsize) alignment(c) ///
@@ -346,7 +345,6 @@ eststo leak_10
 count if (year==2002 & e(sample)==1)
 estadd scalar n_points = r(N)
 
-loc dir D:\cloud\Dropbox\collaborations\glue-sb\soyM\analysis\3-11-20\
 esttab leak_3 leak_2 leak_1 leak_4 leak_5 leak_6 leak_7 leak_8 leak_9 leak_10 ///
 	using `dir'tables\t3_leak.tex, replace label se nodepvars fragment nonumbers wrap ///
 	keep(1.post_2005#c.proximity 1.post_2005#1.close 1.post_2005#1.close#1.soy_suit 1.post_2005#1.biome 1.post_2005#1.biome#1.soy_suit) ///
@@ -374,7 +372,6 @@ esttab time ///
 eststo time2: reg mb2_vdefor b2005.year##i1.biome##i1.soy_suit i.year##i.f_state ///
 	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1 & dist_amb>-100 & dist_amb<100, ///
 	vce(cluster municcode)
-loc dir D:\cloud\Dropbox\collaborations\glue-sb\soyM\analysis\3-11-20\
 esttab time2 ///
 	using `dir'figures\f2_time_plot_100.csv, replace plain ///
 	b(a3) ci(a3)
@@ -537,7 +534,6 @@ estadd loc soy_fe "No"
 estadd loc prop_fe "No"
 estadd loc funcform "Logistic"
 
-loc dir D:\cloud\Dropbox\collaborations\glue-sb\soyM\analysis\3-11-20\
 esttab primary nocov muniyear soybioyear propfe logitreg ///
 	using `dir'tables\ts4_robustness.tex, replace label se nodepvars fragment ///
 	keep(1.biome#1.soy_suit#1.post_2005) ///
@@ -683,7 +679,6 @@ estadd scalar n_points = r(N)
 estadd loc geog "<100km"
 estadd loc time "2004-2007"
 	
-loc dir D:\cloud\Dropbox\collaborations\glue-sb\soyM\analysis\3-11-20\
 esttab r1 r2 r3 r4 r5 r6 ///
 	using `dir'tables\ts8_subsample_robustness.tex, replace label wrap fragment ///
 	keep(1.biome#1.soy_suit#1.post_2005) ///
@@ -718,7 +713,6 @@ eststo state_leak_notmt
 count if (year==2002 & e(sample)==1)
 estadd scalar n_points = r(N)	
 
-loc dir D:\cloud\Dropbox\collaborations\glue-sb\soyM\analysis\8-20-19\
 esttab state_leak_all state_leak_mt state_leak_notmt ///
 	using `dir'tables\ts6_leakage_by_state.tex, replace label wrap fragment ///
 	keep(1.post_2005 1.close 1.post_2005#1.close) ///
@@ -780,7 +774,6 @@ reg mb2_vdefor i.biome##i.soy_suit##i.post_2005 i.year##i.f_state ///
 	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1, ///
 	vce(cluster municcode)	
 predict prediction if e(sample), xb
-loc dir D:\cloud\Dropbox\collaborations\glue-sb\soyM\analysis\8-20-19\
 outsheet ptid year prediction using `dir'stata_prediction.csv, comma 
 
 	
