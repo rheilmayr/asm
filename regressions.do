@@ -117,13 +117,23 @@ estadd loc sample "Within soy-suitable"
 eststo dd_bio_outss: reg mb2_vdefor i.biome##i.post_2005 i.year##i.f_state ///
 	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1 & soy_suit==0, ///
 	vce(cluster municcode)		
+
+areg mb2_vdefor mb2_vdefor i.biome##i.post_2005 i.year##i.f_state ///
+	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1 & soy_suit==0, ///
+	absorb(municcode) cluster(municcode)
+
 count if (year==2002 & e(sample)==1)
 estadd scalar n_points = r(N)
 estadd loc sample "Outside soy-suitable"
 
+
 eststo ddd: reg mb2_vdefor i.biome##i.soy_suit##i.post_2005 i.year##i.f_state ///
 	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1, ///
-	vce(cluster municcode)	
+	vce(cluster municcode)
+areg mb2_vdefor i.biome##i.soy_suit##i.post_2005 i.year##i.f_state ///
+	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1, ///
+	absorb(municcode) cluster(municcode)
+
 count if (year==2002 & e(sample)==1)
 estadd scalar n_points = r(N)
 estadd loc sample "All points"
@@ -784,3 +794,38 @@ sum mb2_vdefor if post_2005==1 & biome==0 & soy_suit == 1 & legal_amazon==1
 sum mb2_vdefor if post_2005==0 & biome==0 & soy_suit == 1 & legal_amazon==1
 areg mb2_vdefor 1.post_2005##1.biome if soy_suit==1 & legal_amazon==1, absorb(ptid)
 reg mb2_vdefor 1.post_2005##1.biome if soy_suit==1 & legal_amazon==1
+
+
+/// Review round 4 - Reviewer 4 - Point FE
+areg mb2_vdefor i.biome##i.soy_suit##i.post_2005 i.year ///
+	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1 & dist_amb>-100 & dist_amb<100, ///
+	absorb(f_ptid) cluster(municcode)
+	
+	
+
+areg mb2_vdefor i.biome##i.soy_suit##i.post_2005 i.year##i.f_state ///
+	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1 & dist_amb>-100 & dist_amb<100, ///
+	absorb(f_ptid) cluster(municcode)
+	
+areg mb2_vdefor i.biome##i.soy_suit##i.post_2005 i.year##i.f_state ///
+	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1 & dist_amb>-100 & dist_amb<100 & year>2004, ///
+	absorb(f_ptid) cluster(municcode)
+	
+	
+reg mb2_vdefor i.biome##i.soy_suit##i.post_2005 i.year##i.f_state ///
+	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1, ///
+	vce(cluster municcode)
+
+egen never_defor = max(mb2_vdefor), by(f_ptid) 
+replace never_defor = !never_defor
+replace never_defor = 0 if missing(never_defor)
+reg mb2_vdefor i.biome##i.soy_suit##i.post_2005 i.year##i.f_state ///
+	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1 & never_defor==1, ///
+	vce(cluster municcode)
+	
+	
+areg mb2_vdefor i.biome##i.soy_suit##i.post_2005 i.year ///
+	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1 & never_defor==0, ///
+	absorb(f_ptid) cluster(municcode)
+
+	
