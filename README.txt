@@ -14,4 +14,5 @@ A) data_prep_points.py
 Summary of scripts: Code should be run in the following order:
 1) data_prep.py: Converts wide dataset into long formats for statistical analysis.
 2) regressions.do: Runs statistical analyses and generates latex tables
-3) results.ipynb: Generates figures and descriptive statistics.
+3) asm_bife.R: Adds robustness results from the binomial fixed effects model.
+4) results.ipynb: Generates figures and descriptive statistics.
