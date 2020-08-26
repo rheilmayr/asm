@@ -15,7 +15,7 @@ import numpy as np
 sys.path.append('D:/dev/glue-sb/')
 import dirfuncs
 dropbox_dir = dirfuncs.guess_dropbox_dir()
-data_dir = dropbox_dir + 'soyM/analysis/3-11-20/'
+data_dir = dropbox_dir + 'soyM/analysis/8-25-20/'
 
 pt_df = pd.read_csv(data_dir + 'wide.csv')
 
@@ -55,7 +55,6 @@ long_df.loc[long_df['mb2_vfor'].isnull(), 'mb2_vdefor'] = np.nan
 # =============================================================================
 # Assign policy treatments
 # =============================================================================
-#long_df.loc[long_df['biome']==1, 'legal_amazon'] = 1
 long_df['soy_suit'] = (long_df['suit']>0).astype(int) * (long_df['GAEZsuit']>40).astype(int)
 
 long_df['car_now'] = (long_df['year']>=long_df['car_year']).astype(int)
@@ -74,7 +73,7 @@ long_df = long_df.sort_values('random')
 long_df.to_csv(data_dir + 'long.csv', index = False)
 
 # =============================================================================
-# Create long dataset for soy conversion analysis (2 time period)
+# Create long dataset for soy conversion plot (2 time period)
 # =============================================================================
 pt_df = pd.read_csv(data_dir + 'wide.csv')
 
@@ -108,15 +107,6 @@ long_df = long_df.sort_values('random')
 out_df = long_df[['ptid', 'year', 'mb2_vfor_2000', 'mb2_y_defor', 'prodes_mon',
                   'propid', 'temp_2000', 'trmm_2000', 'urbandist', 'roaddist', 'soy_suit',
                   'municcode', 'state', 'a_soy', 'biome', 
-                  'legal_amazon', 'set', 'random', 'dist_amb', 'dist_aml',
-                  'pa', 'pa_noncar_elig', 'pa_car_elig', 'pa_indig', 'pa_pi', 'pa_us', 'pa_quil', 'pa_mil',
+                  'legal_amazon', 'set', 'random', 'dist_amb', 'dist_aml', 'pa',
                   'mb_start_for', 'a_start_soy', 'mtemp', 'mtrmm', 'car_year']]
 out_df.to_csv(data_dir + 'soy_conversion.csv', index = False)
-
-
-
-
-
-# =============================================================================
-# multinomial logit for on-property leakage
-# =============================================================================
