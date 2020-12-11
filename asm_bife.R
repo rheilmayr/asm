@@ -1,10 +1,9 @@
+# Import packages
 library(bife)
 library(tidyverse)
 
-wdir <- "d:\\cloud\\dropbox\\collaborations\\glue-sb\\soyM\\analysis\\11-30-20\\"
-
 # Load primary dataset
-df <- read.csv(paste0(wdir, "long.csv"))
+df <- read.csv("data\\long.csv") # note: working directory needs to be root directory of project
 df <- df %>%
   filter((dist_amb>-300) & (dist_aml<300) & (year>2001) & (legal_amazon==1)) %>%
   mutate(soy_suit = (suit>0 & GAEZsuit>40),
@@ -39,8 +38,8 @@ if (summary(ddd)[12,4]<0.01) {
 coef <- paste0(coef, stars)
 se <- format(summary(ddd)[12,2], digits = 3, nsmall = 3)
 
-tex <- paste0(wdir, "tables\\ts4_robustness_wcox.tex")
-new_tex <- paste0(wdir, "tables\\ts4_robustness_amend.tex")
+tex <- "tables\\ts4_robustness_wcox.tex"
+new_tex <- "tables\\ts4_robustness_amend.tex"
 table <- readChar(tex, file.info(tex)$size)
 table <- table %>% str_replace("1.054", coef)
 table <- table %>% str_replace("0.182", se)

@@ -6,7 +6,7 @@ set maxvar 10000
 eststo clear
 set more off
 
-loc dir D:\cloud\Dropbox\collaborations\glue-sb\soyM\analysis\11-30-20\
+loc dir D:/dev/paper_repos/asm/data/
 insheet using `dir'long.csv
 
 drop if dist_amb<-300
@@ -17,11 +17,8 @@ drop if year==2017
 gen y0607 = (year>2005) & (year<2008)
 
 gen post_2003 = year>2003
-// gen post_2004 = year>2004 // Change to 2003?
 gen post_2005 = year>2005
-// gen post_2006 = year>2006
 gen post_2007 = year>2007
-// gen post_2008 = year>2008
 egen long f_propid = group(propid)
 egen long f_ptid = group(ptid)
 egen long f_state = group(state)
@@ -152,9 +149,6 @@ esttab dd_ss_inbio dd_ss_outbio dd_bio_inss dd_bio_outss ddd ///
 	stats(sample n_points N_clust, labels("Sample" "N. points" "N. municipalities")) ///
 	mtitles("Amazon DD" "Cerrado DD" "Soy-suitable DD" "Non-soy suitable DD" "Triple difference")
 
-	
-// 	indicate(Year by state effects = *.year) ///
-// 	addnotes("Includes additional covariates and interaction terms as described in SI. Standard errors clustered by municipality") ///
 
 //// Table 2: Policy interactions
 gen on_car = !missing(propid)
@@ -405,11 +399,7 @@ esttab leak_3 leak_2 leak_1 leak_4 leak_5 leak_6 leak_7 leak_8 leak_9 leak_10 //
 	star(* 0.1 ** 0.05 *** 0.01) ///
 	stats(n_points N_clust, labels("N. points" "N. municipalities"))
 	
-	
-// 	indicate(Year by state effects = *.year) ///
-// 	addnotes("Models estimated using forested points located within the Legal Amazon. Models include additional covariates and interaction terms as described in SI. Standard errors clustered by municipality.")
-	
-	
+		
 ////// Figure 2C: Time effects
 eststo time: areg mb2_vdefor b2005.year##i1.biome##i1.soy_suit i.year##i.f_state ///
 	temp trmm roaddist urbandist i.set i.pa  if legal_amazon==1 & dist_amb>-300 & dist_aml<300, absorb(municcode) cluster(municcode)	
@@ -508,27 +498,6 @@ esttab pol_rob_1 pol_rob_2 pol_rob_3 pol_rob_4 pol_rob_5 pol_rob_6 pol_rob_7 ///
 		 1.post_2003#1.legal_amazon 1.post_2003#1.legal_amazon#1.soy_suit) ///	
 	nostar
 
-// 	title(Linear regression results\label{tab1}) ///
-// 	indicate(Year by state effects = *.year) ///
-// 	addnotes("Includes additional covariates and interaction terms as described in SI. Standard errors clustered by municipalities.") ///
-	
-
-	
-
-// esttab primary nocov muniyear soybioyear propfe logitreg ///
-// 	using `dir'tables\ts4_robustness.tex, replace label se nodepvars fragment ///
-// 	keep(1.biome#1.soy_suit#1.post_2005) ///
-// 	booktabs width(0.8\hsize) alignment(c) ///
-// 	star(* 0.1 ** 0.05 *** 0.01) ///
-// 	stats(cov state_fe munic_fe biome_fe soy_fe prop_fe funcform n_points N_clust, ///
-// 	labels("Includes covariates" "State by year FE" ///
-// 	"Municipality by year FE" "Biome time trend" "Soy-suitable time trend" "Property FE" "Functional form" "N. points" "N. municipalities")) ///
-// 	nomtitles eform(0 0 0 0 0 1) eqlabels("" "" "" "" "" "")
-// 	mtitles("Primary" "No covariates" "Municipality fixed effects" "Property fixed effects" "Logistic") ///
-
-// 	indicate(Covariates = temp) ///
-// 	addnotes("Models estimated using forested points located within the Legal Amazon. Standard errors clustered by municipality. Logistic regression (Column 5) depicts odds ratio.") ///
-
 /// Table SID: Robustness to alternate suitability definitions
 gen soy_suit2 = soy_suit
 eststo prim: areg mb2_vdefor i.biome##i.post_2005##i.soy_suit2 i.year##i.f_state ///
@@ -600,9 +569,6 @@ esttab prim soares_cat gaez_cat prim_mod gaez_cont both_cont ///
 	booktabs width(0.8\hsize) alignment(c) ///
 	star(* 0.1 ** 0.05 *** 0.01) modelwidth(8) ///
 	stats(soares gaez n_points N_clust, labels("Soares-Filho et al data treatment" "GAEZ data treatment" "N. points" "N. municipalities"))
-// 	addnotes("Models estimated using forested points located within the Legal Amazon. Standard errors clustered by municipality.") ///
-// 	mtitles("Primary" "No covariates" "Municipality fixed effects" "Property fixed effects" "Logistic") ///
-// 	eform(0 0 0 0 1)
 
 drop soy_suit2 soy_suit3
 
@@ -851,7 +817,7 @@ estadd loc funcform "Linear"
 
 /// Logistic regression - placeholder for BIFE bias-corrected regression with proper fixed effects from R
 eststo logitreg: logit mb2_vdefor i.biome##i.soy_suit##i.post_2005 ///
-	if rand<0.05 & legal_amazon==1, ///
+	if _n <10000 & legal_amazon==1, ///
 	vce(cluster municcode) or
 count if (year==2002 & e(sample)==1)
 estadd scalar n_points = r(N)
@@ -896,6 +862,7 @@ estadd loc soy_fe "No"
 estadd loc prop_fe "No"
 estadd loc funcform "Cox"
 
+
 esttab primary just_mbfor nocov muniyear soybioyear propfe logitreg cox ///
 	using `dir'tables\ts4_robustness_wcox.tex, replace label se nodepvars fragment ///
 	keep(1.biome#1.soy_suit#1.post_2005) ///
@@ -905,257 +872,4 @@ esttab primary just_mbfor nocov muniyear soybioyear propfe logitreg cox ///
 	labels("Restrict to MapBiomas forests" "Includes covariates" "State by year FE" ///
 	"Municipality by year FE" "Biome time trend" "Soy-suitable time trend" "Property FE" "Functional form" "N. points" "N. municipalities")) ///
 	nomtitles eform(0 0 0 0 0 0 1 1) eqlabels("" "" "" "" "" "" "" "")
-	
-	
-// // Review Round 2 - Compare predicted deforestation rate to actual rate	
-// reg mb2_vdefor i.biome##i.soy_suit##i.post_2005 i.year##i.f_state ///
-// 	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1, ///
-// 	vce(cluster municcode)	
-// predict prediction if e(sample), xb
-// outsheet ptid year prediction using `dir'stata_prediction.csv, comma 
-//
-//	
-// /// Review round 3 - Reviewer 5 - why DiD rather than FE model?
-// sum mb2_vdefor if post_2005==1 & biome==1 & soy_suit == 1 & legal_amazon==1 & rand < 0.05
-// sum mb2_vdefor if post_2005==0 & biome==1 & soy_suit == 1 & legal_amazon==1
-// sum mb2_vdefor if post_2005==1 & biome==0 & soy_suit == 1 & legal_amazon==1
-// sum mb2_vdefor if post_2005==0 & biome==0 & soy_suit == 1 & legal_amazon==1
-// areg mb2_vdefor 1.post_2005##1.biome if soy_suit==1 & legal_amazon==1, absorb(ptid)
-// reg mb2_vdefor 1.post_2005##1.biome if soy_suit==1 & legal_amazon==1
-//
-//
-// /// Review round 4 - Reviewer 4 - Point FE
-// areg mb2_vdefor i.biome##i.soy_suit##i.post_2005 i.year ///
-// 	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1 & dist_amb>-100 & dist_amb<100, ///
-// 	absorb(f_ptid) cluster(municcode)
-//	
-//	
-//
-// areg mb2_vdefor i.biome##i.soy_suit##i.post_2005 i.year##i.f_state ///
-// 	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1 & dist_amb>-100 & dist_amb<100, ///
-// 	absorb(f_ptid) cluster(municcode)
-//	
-// areg mb2_vdefor i.biome##i.soy_suit##i.post_2005 i.year##i.f_state ///
-// 	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1 & dist_amb>-100 & dist_amb<100 & year>2004, ///
-// 	absorb(f_ptid) cluster(municcode)
-//	
-//	
-// reg mb2_vdefor i.biome##i.soy_suit##i.post_2005 i.year##i.f_state ///
-// 	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1, ///
-// 	vce(cluster municcode)
-//
-// egen never_defor = max(mb2_vdefor), by(f_ptid) 
-// replace never_defor = !never_defor
-// replace never_defor = 0 if missing(never_defor)
-// reg mb2_vdefor i.biome##i.soy_suit##i.post_2005 i.year##i.f_state ///
-// 	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1 & never_defor==1, ///
-// 	vce(cluster municcode)
-//	
-//	
-// areg mb2_vdefor i.biome##i.soy_suit##i.post_2005 i.year ///
-// 	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1 & never_defor==0, ///
-// 	absorb(f_ptid) cluster(municcode)
-//
-//	
-// /// Review round 5 - Reviewer 3 question about share asm-only
-// areg mb2_vdefor i.asm_now##i.gts_now##i.car_now i.biome##i.gts_ever##i.on_car2 i.year##i.f_state ///
-// 	temp trmm urbandist roaddist i.pa i.set if year>2001 & soy_suit==1 & legal_amazon==1 & (state=="MT" | state=="PA"), ///
-// 	absorb(municcode) cluster(municcode)
-// count if (year==2002 & e(sample)==1)
-// table asm_now gts_now car_now if e(sample)==1 & year>=2006, contents(freq)
-//
-//
-//
-// /// Review round 5 - reviewer 2 (previous reviewer 4), Cox hazard model
-// preserve
-//
-// keep if year==2002 | year==2006
-// drop if mb2_y_defor<2002
-//
-// gen survival = (mb2_y_defor - year) + 1
-// replace survival = 4 if year==2002 & missing(survival)
-// replace survival = 4 if year==2002 & mb2_y_defor>=2006
-// replace survival = 11 if year==2006 & missing(survival)
-// replace survival = . if survival <0
-// drop if missing(survival)
-//
-// gen defor = !missing(mb2_y_defor)
-// replace defor = 0 if year==2002 & mb2_y_defor>=2006
-// replace defor = 0 if year==2006 & mb2_y_defor<2006
-//
-// stset survival, failure(defor)
-//
-//
-// gen ignore_2 = 0
-// replace ignore_2 = 1 if mb2_y_defor < 2004
-// replace ignore_2 = 1 if year == 2006 & mb2_y_defor < 2006
-// // drop if ignore_2==1
-//
-// gen survival_short = (mb2_y_defor - year) + 1
-// replace survival_short = (mb2_y_defor-2004) + 1 if year==2002
-// replace survival_short = 2 if year==2002 & missing(mb2_y_defor)
-// replace survival_short = 2 if year==2002 & mb2_y_defor>=2006
-// replace survival_short = 2 if year==2006 & missing(mb2_y_defor)
-// replace survival_short = 2 if year==2006 & mb2_y_defor>2007
-//
-// gen defor_short = !missing(mb2_y_defor)
-// replace defor_short = 0 if year==2002 & mb2_y_defor>=2006
-// replace defor_short = 0 if year==2006 & mb2_y_defor>2007
-//
-// stset survival_short, failure(defor_short)
 
-
-/// Primary specification
-
-
-//	
-// /// Biome-year and soy-year time trends
-// stcox i.biome##i.soy_suit##i.post_2005 i.year##i.f_state ///
-// 	if legal_amazon==1, ///
-// 	vce(cluster municcode)
-// eststo cox_b
-// count if (year==2002 & e(sample)==1)
-// estadd scalar n_points = r(N)
-// estadd loc cov "No"
-// estadd loc munic_fe "No"
-// estadd loc biome_fe "No"
-// estadd loc soy_fe "No"
-// estadd loc prop_fe "No"
-// estadd loc funcform "Linear"
-//
-// /// Municipality fixed effects
-// stcox i.biome##i.soy_suit##i.post_2005 temp trmm roaddist urbandist i.pa i.set i.f_municcode i.f_state##i.year ///
-// 	if legal_amazon==1, vce(cluster municcode)
-// eststo cox_c
-// count if (year==2002 & e(sample)==1)
-// estadd scalar n_points = r(N)
-// estadd loc cov "Yes"
-// estadd loc munic_fe "Yes"
-// estadd loc biome_fe "No"
-// estadd loc soy_fe "No"
-// estadd loc prop_fe "No"
-// estadd loc funcform "Linear"
-//
-// /// Biome-year and soy-year time trends
-// stcox i.biome##i.soy_suit##i.post_2005 c.year##i.soy_suit c.year##i.biome ///
-// 	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1, ///
-// 	vce(cluster municcode)
-// eststo cox_d
-// count if (year==2002 & e(sample)==1)
-// estadd scalar n_points = r(N)
-// estadd loc cov "Yes"
-// estadd loc munic_fe "No"
-// estadd loc biome_fe "Yes"
-// estadd loc soy_fe "Yes"
-// estadd loc prop_fe "No"
-// estadd loc funcform "Linear"
-//
-//
-//
-// esttab cox_a cox_b cox_d ///
-// 	,  label se nodepvars fragment ///
-// 	keep(1.biome#1.soy_suit#1.post_2005) ///
-// 	booktabs width(0.8\hsize) alignment(c) ///
-// 	star(* 0.1 ** 0.05 *** 0.01) ///
-// 	stats(cov state_fe munic_fe biome_fe soy_fe prop_fe funcform n_points N_clust, ///
-// 	labels("Includes covariates" "State by year FE" ///
-// 	"Municipality by year FE" "Biome time trend" "Soy-suitable time trend" "Property FE" "Functional form" "N. points" "N. municipalities")) ///
-// 	nomtitles eform(0 0 0 0 0 1) eqlabels("" "" "" "" "" "")
-//
-//
-// esttab cox_a cox_b cox_c cox_d ///
-// 	using `dir'tables\ts4_cox_robustness.tex, replace label se nodepvars fragment ///
-// 	keep(1.biome#1.soy_suit#1.post_2005) ///
-// 	booktabs width(0.8\hsize) alignment(c) ///
-// 	star(* 0.1 ** 0.05 *** 0.01) ///
-// 	stats(cov state_fe munic_fe biome_fe soy_fe prop_fe funcform n_points N_clust, ///
-// 	labels("Includes covariates" "State by year FE" ///
-// 	"Municipality by year FE" "Biome time trend" "Soy-suitable time trend" "Property FE" "Functional form" "N. points" "N. municipalities")) ///
-// 	nomtitles eform(0 0 0 0 0 1) eqlabels("" "" "" "" "" "")
-//
-// // Table SIE: Spatial and temporal subsets
-// stcox i.biome##i.soy_suit##i.post_2005 temp trmm roaddist urbandist i.pa i.set i.year##i.f_state ///
-// 	if legal_amazon==1 & dist_amb<300 & dist_amb>-300, vce(cluster municcode)
-// eststo cox_e1
-// count if (year==2005 & e(sample)==1)
-// estadd scalar n_points = r(N)
-// estadd loc geog "Full sample"
-// estadd loc time "2002-2016"
-//
-// stcox i.biome##i.soy_suit##i.post_2005 i.year##i.f_state ///
-// 	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1 ///
-// 	& dist_amb>-50 & dist_amb<50, ///
-// 	vce(cluster municcode)	
-// eststo cox_e3
-// count if (year==2005 & e(sample)==1)
-// estadd scalar n_points = r(N)
-// estadd loc geog "<50km"
-// estadd loc time "2002-2016"
-//
-// stcox i.biome##i.soy_suit##i.post_2005 i.year##i.f_state ///
-// 	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1 ///
-// 	& dist_amb>-100 & dist_amb<100, ///
-// 	vce(cluster municcode)
-// eststo cox_e4
-// count if (year==2005 & e(sample)==1)
-// estadd scalar n_points = r(N)
-// estadd loc geog "<100km"
-// estadd loc time "2002-2016"
-//
-// stcox i.biome##i.soy_suit##i.post_2005 i.year##i.f_state ///
-// 	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1 ///
-// 	& dist_amb>-200 & dist_amb<200, ///
-// 	vce(cluster municcode)
-// eststo cox_e5
-// count if (year==2005 & e(sample)==1)
-// estadd scalar n_points = r(N)
-// estadd loc geog "<200km"
-// estadd loc time "2002-2016"
-//	
-// gen ignore_2 = 0
-// replace ignore_2 = 1 if mb2_y_defor < 2004
-// replace ignore_2 = 1 if year == 2006 & mb2_y_defor < 2006
-// // drop if ignore_2==1
-//
-// gen survival_short = (mb2_y_defor - year) + 1
-// replace survival_short = (mb2_y_defor-2004) + 1 if year==2002
-// replace survival_short = 2 if year==2002 & missing(mb2_y_defor)
-// replace survival_short = 2 if year==2002 & mb2_y_defor>=2006
-// replace survival_short = 2 if year==2006 & missing(mb2_y_defor)
-// replace survival_short = 2 if year==2006 & mb2_y_defor>2007
-//
-// gen defor_short = !missing(mb2_y_defor)
-// replace defor_short = 0 if year==2002 & mb2_y_defor>=2006
-// replace defor_short = 0 if year==2006 & mb2_y_defor>2007
-//
-// stset survival_short, failure(defor_short)
-
-//
-// stcox i.biome##i.soy_suit##i.post_2005 temp trmm roaddist urbandist i.pa i.set i.year##i.state ///
-// 	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1 & ignore_2==0 ///
-// 	& year>2003 & year<2008, ///
-// 	vce(cluster municcode)
-// eststo cox_e2
-// count if (year==2005 & e(sample)==1)
-// estadd scalar n_points = r(N)
-// estadd loc geog "Full sample"
-// estadd loc time "2004-2007"
-//	
-// stcox i.biome##i.soy_suit##i.post_2005 i.year##i.f_state ///
-// 	temp trmm roaddist urbandist i.pa i.set if legal_amazon==1 ///
-// 	& year>2003 & year<2008 & dist_amb>-100 & dist_amb<100 & ignore_2==0, ///
-// 	vce(cluster municcode)	
-// eststo cox_e6
-// count if (year==2005 & e(sample)==1)
-// estadd scalar n_points = r(N)
-// estadd loc geog "<100km"
-// estadd loc time "2004-2007"
-//
-//	
-// esttab cox_e1 cox_e2 cox_e3 cox_e4 cox_e5 cox_e6 ///
-// 	using `dir'tables\ts8_cox_subsample_robustness.tex, replace label wrap fragment ///
-// 	keep(1.biome#1.soy_suit#1.post_2005) ///
-// 	booktabs width(0.8\hsize) alignment(c) ///
-// 	star(* 0.1 ** 0.05 *** 0.01) modelwidth(8) ///
-// 	nomtitles ///
-// 	stats(geog time n_points N_clust, labels("Spatial subsample (distance to biome boundary)" "Years included" "N. points" "N. municipalities"))
