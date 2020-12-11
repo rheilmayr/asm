@@ -7,16 +7,12 @@ Created on Thu Jun 27 13:23:05 2019
 #==============================================================================
 # Imports and assign paths
 #==============================================================================
-import sys
 import os
 import pandas as pd
 import numpy as np
-
-sys.path.append('D:/dev/glue-sb/')
-import dirfuncs
-dropbox_dir = dirfuncs.guess_dropbox_dir()
-data_dir = dropbox_dir + 'soyM/analysis/11-30-20/'
-
+from pathlib import Path
+path = str(Path(__file__).parent)
+data_dir = path + '\\data\\'
 pt_df = pd.read_csv(data_dir + 'wide.csv')
 
 # =============================================================================
@@ -69,7 +65,6 @@ long_df['gts_now'] = long_df['prodes_mon'] * long_df['gts'] * long_df['biome'] *
 #==============================================================================
 # Save long data
 #==============================================================================
-long_df = long_df.sort_values('random')
 long_df.to_csv(data_dir + 'long.csv', index = False)
 
 # =============================================================================
@@ -103,10 +98,9 @@ change_stubs = [stub for stub in stubs if '_'==stub[-1:]]
 long_df = long_df.rename(columns = {col: col[:-1] for col in change_stubs})
 
 # Export data for analysis in stata
-long_df = long_df.sort_values('random')
 out_df = long_df[['ptid', 'year', 'mb2_vfor_2000', 'mb2_y_defor', 'prodes_mon',
                   'propid', 'temp_2000', 'trmm_2000', 'urbandist', 'roaddist', 'soy_suit',
                   'municcode', 'state', 'a_soy', 'biome', 
-                  'legal_amazon', 'set', 'random', 'dist_amb', 'dist_aml', 'pa',
+                  'legal_amazon', 'set', 'dist_amb', 'dist_aml', 'pa',
                   'mb_start_for', 'a_start_soy', 'mtemp', 'mtrmm', 'car_year']]
 out_df.to_csv(data_dir + 'soy_conversion.csv', index = False)
