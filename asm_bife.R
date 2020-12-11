@@ -1,7 +1,7 @@
 library(bife)
 library(tidyverse)
 
-wdir <- "d:\\cloud\\dropbox\\collaborations\\glue-sb\\soyM\\analysis\\8-25-20\\"
+wdir <- "d:\\cloud\\dropbox\\collaborations\\glue-sb\\soyM\\analysis\\11-30-20\\"
 
 # Load primary dataset
 df <- read.csv(paste0(wdir, "long.csv"))

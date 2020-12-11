@@ -15,7 +15,7 @@ import numpy as np
 sys.path.append('D:/dev/glue-sb/')
 import dirfuncs
 dropbox_dir = dirfuncs.guess_dropbox_dir()
-data_dir = dropbox_dir + 'soyM/analysis/8-25-20/'
+data_dir = dropbox_dir + 'soyM/analysis/11-30-20/'
 
 pt_df = pd.read_csv(data_dir + 'wide.csv')
 
