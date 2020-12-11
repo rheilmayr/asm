@@ -38,11 +38,11 @@ if (summary(ddd)[12,4]<0.01) {
 coef <- paste0(coef, stars)
 se <- format(summary(ddd)[12,2], digits = 3, nsmall = 3)
 
-tex <- "tables\\ts4_robustness_wcox.tex"
-new_tex <- "tables\\ts4_robustness_amend.tex"
+tex <- "data\\tables\\ts4_robustness_wcox.tex"
+new_tex <- "data\\tables\\ts4_robustness_amend.tex"
 table <- readChar(tex, file.info(tex)$size)
-table <- table %>% str_replace("1.054", coef)
-table <- table %>% str_replace("0.182", se)
-table <- table %>% str_replace("13889", "279360")
-table <- table %>% str_replace("528", "563")
+table <- table %>% str_replace("0.583", coef)
+table <- table %>% str_replace("0.390", se)
+table <- table %>% str_replace("467", "279360")
+table <- table %>% str_replace("27", "563")
 table %>% write(file = new_tex)
